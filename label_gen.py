@@ -92,6 +92,33 @@ label_profile = '5x17' #can be '5x17' or '6x21'
 ###################################################################################################
 PDF_file_name = input('Enter output filename:\n')
 
+
+if label_profile == '5x17':
+	column_names = ["A", "B", "C", "D", "E"]
+	column_total = len(column_names)
+	row_total = 17
+	NUM_LABELS_X = column_total
+	NUM_LABELS_Y = row_total 
+	MARGIN_L = 1.6*cm
+	MARGIN_R = MARGIN_L
+	MARGIN_T = 0.25*cm
+	MARGIN_B = MARGIN_T
+	LABEL_WIDTH = 105.0
+	LABEL_HEIGHT = 46.7
+
+elif label_profile == '6x21':
+	column_names = ["A", "B", "C", "D", "E", "F"]
+	column_total = len(column_names)
+	row_total = 21
+	NUM_LABELS_X = column_total
+	NUM_LABELS_Y = row_total 
+	MARGIN_L = 0.45*cm
+	MARGIN_R = MARGIN_L
+	MARGIN_T = 0.25*cm
+	MARGIN_B = MARGIN_T
+	LABEL_WIDTH = 96.0
+	LABEL_HEIGHT = 36.0
+
 def add_category_input(a,b):
 	category_num = len(category_dict[a])
 	category_dict[a][category_num] = tk.Text(root, height=3, width=50)
@@ -200,13 +227,12 @@ def button_click(button_id):
 	try:
 		cur_state = state_dict[buttonID]
 	except:
-		cur_state = ''
-	if cur_state == '' or cur_state == 0:
+		cur_state = 0
+	if cur_state == 0:
 		btn.config(bg='crimson')
 		state_dict[buttonID] = 1
 	elif cur_state == 1:
 		state_dict[buttonID] = 0
-		btn.config(bg='lightgreen')
 
 def column_click(col_num):
 	for r in range(1,row_total+1):
@@ -215,13 +241,12 @@ def column_click(col_num):
 		try:
 			cur_state = state_dict[buttonID]
 		except:
-			cur_state = ''
-		if cur_state == '' or cur_state == 0:
+			cur_state = 0
+		if cur_state == 0:
 			btn.config(bg='crimson')
 			state_dict[buttonID] = 1
 		elif cur_state == 1:
 			state_dict[buttonID] = 0
-			btn.config(bg='lightgreen')
 
 def row_click(row_num):
 	for c in range(1,column_total+1):
@@ -230,8 +255,8 @@ def row_click(row_num):
 		try:
 			cur_state = state_dict[buttonID]
 		except:
-			cur_state = ''
-		if cur_state == '' or cur_state == 0:
+			cur_state = 0
+		if cur_state == 0:
 			btn.config(bg='crimson')
 			state_dict[buttonID] = 1
 		elif cur_state == 1:
@@ -241,33 +266,6 @@ def row_click(row_num):
 def finish_click():
 	root.destroy()
 
-if label_profile == '5x17':
-	column_names = ["A", "B", "C", "D", "E"]
-	column_total = len(column_names)
-	row_total = 17
-	NUM_LABELS_X = column_total
-	NUM_LABELS_Y = row_total 
-	MARGIN_L = 1.7*cm
-	MARGIN_R = 1.7*cm
-	MARGIN_T = 0.2*cm
-	MARGIN_B = 0.3*cm
-	LABEL_MARGIN = 0.3*cm
-	LABEL_WIDTH = 101.3
-	LABEL_HEIGHT = 44.8
-
-elif label_profile == '6x21':
-	column_names = ["A", "B", "C", "D", "E", "F"]
-	column_total = len(column_names)
-	row_total = 21
-	NUM_LABELS_X = column_total
-	NUM_LABELS_Y = row_total 
-	MARGIN_L = 0.45*cm
-	MARGIN_R = 0.4*cm
-	MARGIN_T = 0.5*cm
-	MARGIN_B = 0.4*cm
-	LABEL_MARGIN = 0.3*cm
-	LABEL_WIDTH = 96.0
-	LABEL_HEIGHT = 36.0
 
 root = tk.Tk()
 root.title('Select missing labels')
@@ -332,7 +330,7 @@ def front_label(line1_string: str,line2_string: str,line3_string: str) -> Drawin
 	return label_drawing
 
 
-PAGESIZE = letter
+# PAGESIZE = letter
 SHEET_TOP = PAGESIZE[1]
 
 canvas_count = 0
@@ -359,7 +357,8 @@ for var in range(0,99):
 						except:
 							stiker = sticker = front_label('','','')
 						x = i * LABEL_WIDTH+MARGIN_L#*cm
-						y = SHEET_TOP - LABEL_HEIGHT - u * LABEL_HEIGHT - MARGIN_T/2
+						y = SHEET_TOP - (u+1) * LABEL_HEIGHT + 2*MARGIN_T
+						# y = SHEET_TOP - LABEL_HEIGHT - u * LABEL_HEIGHT - MARGIN_T/2
 						renderPDF.draw(sticker, label_canvas, x, y)
 		label_canvas.showPage()
 		label_canvas.save()
