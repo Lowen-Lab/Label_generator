@@ -99,7 +99,7 @@ if label_profile == '5x17':
 	row_total = 17
 	NUM_LABELS_X = column_total
 	NUM_LABELS_Y = row_total 
-	MARGIN_L = 1.6*cm
+	MARGIN_L = 1.55*cm
 	MARGIN_R = MARGIN_L
 	MARGIN_T = 0.25*cm
 	MARGIN_B = MARGIN_T
@@ -119,11 +119,12 @@ elif label_profile == '6x21':
 	LABEL_WIDTH = 96.0
 	LABEL_HEIGHT = 36.0
 
+
+
 def add_category_input(a,b):
 	category_num = len(category_dict[a])
 	category_dict[a][category_num] = tk.Text(root, height=3, width=50)
 	category_dict[a][category_num].grid(column=a,row=b)
-
 def Close(): 
 	root.destroy()
 def Crash():
@@ -168,28 +169,9 @@ instructions.grid(column=0, row=101, columnspan=3)#.pack(side=BOTTOM)
 root.mainloop()
 
 
-newline_spacer = '|newline|'
-def find_all_possible_barcode_combinations(barcode_sites):
-	full_barcode_list = []
-	barcode_site_list = sorted(list(set(list(barcode_sites.keys()))))
-	for b in range(0,len(barcode_site_list)):
-		site = barcode_site_list[b]
-		full_barcode_list = list(set(full_barcode_list))
-		nt_list = barcode_sites[site]
-		building_barcodes = []
-		if full_barcode_list == []:
-			for num in range(0,len(nt_list)): 
-				building_barcodes.append(nt_list[num])
-		else:
-			for bar_num in range(0,len(full_barcode_list)):
-				for nt_num in range(0,len(nt_list)):
-					growing_nt_string = full_barcode_list[bar_num]+nt_list[nt_num]
-					building_barcodes.append(growing_nt_string)
-		full_barcode_list = building_barcodes
-	full_barcode_list = sorted(list(set(full_barcode_list)))
-	return full_barcode_list
-line_num_list = sorted(output_dict.keys())
 
+newline_spacer = '|newline|'
+line_num_list = sorted(output_dict.keys())
 full_string_list = []
 for l in range(0,len(line_num_list)):
 	line_num = line_num_list[l]
@@ -224,45 +206,32 @@ label_list = full_string_list
 def button_click(button_id):
 	btn = btn_dict[button_id]
 	btn.config(bg='crimson')
-	try:
-		cur_state = state_dict[buttonID]
-	except:
-		cur_state = 0
-	if cur_state == 0:
+	if state_dict[button_id] == 0:
 		btn.config(bg='crimson')
-		state_dict[buttonID] = 1
-	elif cur_state == 1:
-		state_dict[buttonID] = 0
-
+		state_dict[button_id] = 1
+	elif state_dict[button_id] == 1:
+		state_dict[button_id] = 0
+		btn.config(bg='lightgreen')
 def column_click(col_num):
 	for r in range(1,row_total+1):
-		buttonID = str(r)+'-'+str(col_num)
-		btn = btn_dict[buttonID]
-		try:
-			cur_state = state_dict[buttonID]
-		except:
-			cur_state = 0
-		if cur_state == 0:
+		button_id = str(r)+'-'+str(col_num)
+		btn = btn_dict[button_id]
+		if state_dict[button_id] == 0:
 			btn.config(bg='crimson')
-			state_dict[buttonID] = 1
-		elif cur_state == 1:
-			state_dict[buttonID] = 0
-
+			state_dict[button_id] = 1
+		elif state_dict[button_id] == 1:
+			state_dict[button_id] = 0
+			btn.config(bg='lightgreen')
 def row_click(row_num):
 	for c in range(1,column_total+1):
-		buttonID = str(row_num)+'-'+str(c)
-		btn = btn_dict[buttonID]
-		try:
-			cur_state = state_dict[buttonID]
-		except:
-			cur_state = 0
-		if cur_state == 0:
+		button_id = str(row_num)+'-'+str(c)
+		btn = btn_dict[button_id]
+		if state_dict[button_id] == 0:
 			btn.config(bg='crimson')
-			state_dict[buttonID] = 1
-		elif cur_state == 1:
-			state_dict[buttonID] = 0
+			state_dict[button_id] = 1
+		elif state_dict[button_id] == 1:
+			state_dict[button_id] = 0
 			btn.config(bg='lightgreen')
-
 def finish_click():
 	root.destroy()
 
@@ -275,10 +244,10 @@ for c in range(0,column_total+1):
 	for r in range(0,row_total+1):
 		buttonID = str(r)+'-'+str(c)
 		btn_dict[buttonID] = tk.Button(root)
+		state_dict[buttonID] = 0
 for c in range(0,column_total+1):
 	for r in range(0,row_total+1):
 		buttonID = str(r)+'-'+str(c)
-		state_dict[buttonID] = 0
 		if c == 0 and r == 0:
 			pass
 		elif r == 0 and c >0: # full column
@@ -303,7 +272,6 @@ exit_button.grid(row=row_total+1, column=1, sticky="w")
 instructions = Label(root,text='Select any labels on a sheet that new labels should not be printed on (e.g. Those labels are already used).\nSelect the grey cells to block out full rows or columns.')
 instructions.grid(column=column_total+2, row=0)
 root.mainloop()
-
 
 PAGESIZE = letter
 # PAGESIZE = (PAGESIZE[0]-(MARGIN_L+MARGIN_R),PAGESIZE[1]-(MARGIN_T+MARGIN_B))
