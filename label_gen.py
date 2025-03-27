@@ -1,5 +1,5 @@
 '''
-Label generation script - v1.0
+Label generation script - v1.1
 ###################################################################################################
 #####################################    About this script    #####################################
 ###################################################################################################
@@ -62,6 +62,7 @@ sheet, then prompt you to mark the locations of labels that should not be used o
 #######################################    UPDATE NOTES    ########################################
 ###################################################################################################
 02/07/2025 - v1.0 - Published
+03/27/2025 - v1.0 - Added option for full or partial sheet, permits repeat values within categories
 '''
 ###################################################################################################
 ###################################### Load required modules ######################################
@@ -91,6 +92,16 @@ label_profile = '5x17' #can be '5x17' or '6x21'
 ###################################################################################################
 ###################################################################################################
 PDF_file_name = input('Enter output filename:\n')
+partial_sheet_input = input('Full or Partial sheet? (F or P)\n')
+
+partial_sheet_bool = False
+if len(partial_sheet_input) >0:
+	if partial_sheet_input[0] == 'f' or partial_sheet_input[0] == 'F':
+		partial_sheet_bool = False
+	elif partial_sheet_input[0] == 'p' or partial_sheet_input[0] == 'P':
+		partial_sheet_bool = True
+	else:
+		sys.exit('Invalid selection')
 
 
 if label_profile == '5x17':
@@ -181,7 +192,7 @@ for l in range(0,len(line_num_list)):
 	out_strings = []
 	catg_num_list = sorted(output_dict[line_num].keys())
 	for c in range(0,len(catg_num_list)):
-		full_string_list = list(set(full_string_list))
+		# full_string_list = list(set(full_string_list))
 		building_strings = []
 		catg_num = catg_num_list[c]
 		local_catg_strings = output_dict[line_num][catg_num]
@@ -194,14 +205,14 @@ for l in range(0,len(line_num_list)):
 					new_string = full_string_list[i]+value_delimiter+string
 					building_strings.append(new_string)
 		full_string_list = building_strings
-	full_string_list = sorted(list(set(full_string_list)))
+	# full_string_list = sorted(list(set(full_string_list)))
 	building_strings = []
 	for i in range(0,len(full_string_list)):
 		new_string = full_string_list[i]+newline_spacer
 		building_strings.append(new_string)
 	full_string_list = building_strings
 label_list = full_string_list
-
+label_list = sorted(label_list)
 
 def button_click(button_id):
 	btn = btn_dict[button_id]
@@ -235,43 +246,47 @@ def row_click(row_num):
 def finish_click():
 	root.destroy()
 
-
-root = tk.Tk()
-root.title('Select missing labels')
 state_dict = {}
-btn_dict = {}
 for c in range(0,column_total+1):
 	for r in range(0,row_total+1):
 		buttonID = str(r)+'-'+str(c)
-		btn_dict[buttonID] = tk.Button(root)
 		state_dict[buttonID] = 0
-for c in range(0,column_total+1):
-	for r in range(0,row_total+1):
-		buttonID = str(r)+'-'+str(c)
-		if c == 0 and r == 0:
-			pass
-		elif r == 0 and c >0: # full column
-			cell_ID = column_names[c-1]+str("{:02d}".format(r))
+if partial_sheet_bool == True:
+	root = tk.Tk()
+	root.title('Select missing labels')
+	btn_dict = {}
+	for c in range(0,column_total+1):
+		for r in range(0,row_total+1):
+			buttonID = str(r)+'-'+str(c)
 			btn_dict[buttonID] = tk.Button(root)
-			btn_dict[buttonID].config(text=cell_ID, bg='lightgrey', command=lambda column_name=c: column_click(column_name))
-			btn_dict[buttonID].grid(row=r, column=c, sticky="w")
-		elif c == 0: # full row
-			cell_ID = column_names[c-1]+str("{:02d}".format(r))
-			btn_dict[buttonID] = tk.Button(root)
-			btn_dict[buttonID].config(text=cell_ID, bg='lightgrey', command=lambda row_name=r: row_click(row_name))
-			btn_dict[buttonID].grid(row=r, column=c, sticky="w")
-		else:
-			cell_ID = column_names[c-1]+str("{:02d}".format(r))
-			btn_dict[buttonID] = tk.Button(root)
-			btn_dict[buttonID].config(text=cell_ID, bg='lightgreen', command=lambda button=buttonID: button_click(button))
-			btn_dict[buttonID].grid(row=r, column=c, sticky="w")
-close_button = tk.Button(root, text='Submit',command=finish_click)
-close_button.grid(row=row_total+1, column=0, sticky="w")
-exit_button = tk.Button(root, text='Exit',command=Crash)
-exit_button.grid(row=row_total+1, column=1, sticky="w")
-instructions = Label(root,text='Select any labels on a sheet that new labels should not be printed on (e.g. Those labels are already used).\nSelect the grey cells to block out full rows or columns.')
-instructions.grid(column=column_total+2, row=0)
-root.mainloop()
+			state_dict[buttonID] = 0
+	for c in range(0,column_total+1):
+		for r in range(0,row_total+1):
+			buttonID = str(r)+'-'+str(c)
+			if c == 0 and r == 0:
+				pass
+			elif r == 0 and c >0: # full column
+				cell_ID = column_names[c-1]+str("{:02d}".format(r))
+				btn_dict[buttonID] = tk.Button(root)
+				btn_dict[buttonID].config(text=cell_ID, bg='lightgrey', command=lambda column_name=c: column_click(column_name))
+				btn_dict[buttonID].grid(row=r, column=c, sticky="w")
+			elif c == 0: # full row
+				cell_ID = column_names[c-1]+str("{:02d}".format(r))
+				btn_dict[buttonID] = tk.Button(root)
+				btn_dict[buttonID].config(text=cell_ID, bg='lightgrey', command=lambda row_name=r: row_click(row_name))
+				btn_dict[buttonID].grid(row=r, column=c, sticky="w")
+			else:
+				cell_ID = column_names[c-1]+str("{:02d}".format(r))
+				btn_dict[buttonID] = tk.Button(root)
+				btn_dict[buttonID].config(text=cell_ID, bg='lightgreen', command=lambda button=buttonID: button_click(button))
+				btn_dict[buttonID].grid(row=r, column=c, sticky="w")
+	close_button = tk.Button(root, text='Submit',command=finish_click)
+	close_button.grid(row=row_total+1, column=0, sticky="w")
+	exit_button = tk.Button(root, text='Exit',command=Crash)
+	exit_button.grid(row=row_total+1, column=1, sticky="w")
+	instructions = Label(root,text='Select any labels on a sheet that new labels should not be printed on (e.g. Those labels are already used).\nSelect the grey cells to block out full rows or columns.')
+	instructions.grid(column=column_total+2, row=0)
+	root.mainloop()
 
 PAGESIZE = letter
 # PAGESIZE = (PAGESIZE[0]-(MARGIN_L+MARGIN_R),PAGESIZE[1]-(MARGIN_T+MARGIN_B))
@@ -335,41 +350,46 @@ for var in range(0,99):
 			canvas_count += 1
 			label_canvas = Canvas(PDF_file_name+'-'+str(canvas_count)+'.pdf', pagesize=PAGESIZE)
 
-			root = tk.Tk()
-			root.title('Select missing labels')
 			state_dict = {}
-			btn_dict = {}
-			for c in range(0,column_total+1):
-				for r in range(0,row_total+1):
-					buttonID = str(r)+'-'+str(c)
-					btn_dict[buttonID] = tk.Button(root)
 			for c in range(0,column_total+1):
 				for r in range(0,row_total+1):
 					buttonID = str(r)+'-'+str(c)
 					state_dict[buttonID] = 0
-					if c == 0 and r == 0:
-						pass
-					elif r == 0 and c >0: # full column
-						cell_ID = column_names[c-1]+str("{:02d}".format(r))
+			if partial_sheet_bool == True:
+				root = tk.Tk()
+				root.title('Select missing labels')
+				btn_dict = {}
+				for c in range(0,column_total+1):
+					for r in range(0,row_total+1):
+						buttonID = str(r)+'-'+str(c)
 						btn_dict[buttonID] = tk.Button(root)
-						btn_dict[buttonID].config(text=cell_ID, bg='lightgrey', command=lambda column_name=c: column_click(column_name))
-						btn_dict[buttonID].grid(row=r, column=c, sticky="w")
-					elif c == 0: # full row
-						cell_ID = column_names[c-1]+str("{:02d}".format(r))
-						btn_dict[buttonID] = tk.Button(root)
-						btn_dict[buttonID].config(text=cell_ID, bg='lightgrey', command=lambda row_name=r: row_click(row_name))
-						btn_dict[buttonID].grid(row=r, column=c, sticky="w")
-					else:
-						cell_ID = column_names[c-1]+str("{:02d}".format(r))
-						btn_dict[buttonID] = tk.Button(root)
-						btn_dict[buttonID].config(text=cell_ID, bg='lightgreen', command=lambda button=buttonID: button_click(button))
-						btn_dict[buttonID].grid(row=r, column=c, sticky="w")
-			close_button = tk.Button(root, text='Submit',command=finish_click)
-			close_button.grid(row=row_total+1, column=0, sticky="w")
-			exit_button = tk.Button(root, text='Exit',command=Crash)
-			exit_button.grid(row=row_total+1, column=1, sticky="w")
-			root.mainloop()
+				for c in range(0,column_total+1):
+					for r in range(0,row_total+1):
+						buttonID = str(r)+'-'+str(c)
+						state_dict[buttonID] = 0
+						if c == 0 and r == 0:
+							pass
+						elif r == 0 and c >0: # full column
+							cell_ID = column_names[c-1]+str("{:02d}".format(r))
+							btn_dict[buttonID] = tk.Button(root)
+							btn_dict[buttonID].config(text=cell_ID, bg='lightgrey', command=lambda column_name=c: column_click(column_name))
+							btn_dict[buttonID].grid(row=r, column=c, sticky="w")
+						elif c == 0: # full row
+							cell_ID = column_names[c-1]+str("{:02d}".format(r))
+							btn_dict[buttonID] = tk.Button(root)
+							btn_dict[buttonID].config(text=cell_ID, bg='lightgrey', command=lambda row_name=r: row_click(row_name))
+							btn_dict[buttonID].grid(row=r, column=c, sticky="w")
+						else:
+							cell_ID = column_names[c-1]+str("{:02d}".format(r))
+							btn_dict[buttonID] = tk.Button(root)
+							btn_dict[buttonID].config(text=cell_ID, bg='lightgreen', command=lambda button=buttonID: button_click(button))
+							btn_dict[buttonID].grid(row=r, column=c, sticky="w")
+				close_button = tk.Button(root, text='Submit',command=finish_click)
+				close_button.grid(row=row_total+1, column=0, sticky="w")
+				exit_button = tk.Button(root, text='Exit',command=Crash)
+				exit_button.grid(row=row_total+1, column=1, sticky="w")
+				root.mainloop()
 		else:
 			break
 
-print("PRINT AT ACTUAL SIZE OR SCALE TO 100%")
+# print("PRINT AT ACTUAL SIZE OR SCALE TO 100%")
